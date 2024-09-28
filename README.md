@@ -1,6 +1,6 @@
 # Smart Task Manager API Solution
 
-
+#[API Endpoints Documentation](https://documenter.getpostman.com/view/28895384/2sAXqy4f9S#6790e80e-205c-4f4c-a8c8-e4febc85a39d)
 - get inputs
 - validate inputs
 - logging
