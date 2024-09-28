@@ -29,7 +29,7 @@ class Task(db.Model):
     description: Mapped[str] = mapped_column(String(1500))
     due_date: Mapped[date] = mapped_column(Date)
     completed: Mapped[bool] = mapped_column(Boolean, default=False)
-    priority: Mapped[str] = mapped_column(String(6), nullable=True, default='once')
+    priority: Mapped[str] = mapped_column(String(6), nullable=True, default='high')
     recurrence: Mapped[str] = mapped_column(String(7), default="once")
 
     def to_dict(self):
@@ -53,6 +53,7 @@ with app.app_context():
 
 
 #--------------------End-points--------------------------------------------
+
 def str_to_date(string) -> date:
     """convert a string with format YYYY-MM-DD into date object"""
     date_data = string.split('-')
@@ -104,3 +105,11 @@ def update_task(_id):
 
     # this code block will run only if update was success
     return jsonify(response={"Success": "Successfully updated the details."}), 200 
+
+ 
+@app.route("/tasks/<int:_id>", methods=["DELETE"])
+def delete_task(_id):
+    task = db.get_or_404(Task,_id)
+    db.session.delete(task)
+    db.session.commit()
+    return jsonify(response={"success": "Successfully deleted the cafe from the database."}), 200
