@@ -5,7 +5,7 @@ from sqlalchemy import Integer, String, Boolean, Date
 from transformers import pipeline
 from datetime import date, datetime, timedelta
 
-
+GEN = pipeline("fill-mask")
 app = Flask(__name__)
 # ------------------------------- Data Models ----------------------------------
 
@@ -142,8 +142,7 @@ def delete_task(_id):
 @app.route("/tasks/suggest", methods=["POST"])
 def get_task_suggestion():
     text = request.form.get("user-input") + "<mask>"
-    gen = pipeline("fill-mask")
-    return jsonify(response=gen(text))
+    return jsonify(response=GEN(text))
 
 @app.route("/tasks/<int:_id>/predict-due-date", methods=["POST"])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 def predict_due_date(_id):
@@ -153,7 +152,7 @@ def predict_due_date(_id):
     if task_trackers:
         # get the number of days in between start -date and end-date and put in a list
         number_difference = [(task_tracker.end_date - task_tracker.start_date).days for task_tracker in task_trackers if task_tracker.end_date]
-        # get calulate the average, add the average from today
+        # get calulate the average, add the average number of days to today
         average = sum(number_difference) // len(number_difference)
         print(average)
         today = datetime.now()
