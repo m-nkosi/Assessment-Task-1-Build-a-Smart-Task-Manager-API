@@ -35,7 +35,7 @@ class Task(db.Model):
 
     # ************** Parent relationship *****************#
     # "parent_task" refers to the parent_task property in TaskTrackers
-    task_trackers = relationship("TaskTracker", back_populates="parent_task") 
+    task_trackers = relationship("TaskTracker", back_populates="parent_task", cascade="all, delete") 
 
     def to_dict(self):
         """returns the object's attributes as a dictionary"""
@@ -57,7 +57,7 @@ class TaskTracker(db.Model):
     __tablename__ = "task_trackers"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     start_date: Mapped[date] = mapped_column(Date, default=date(datetime.now().year,datetime.now().month, datetime.now().day))
-    end_date: Mapped[date] = mapped_column(Date)
+    end_date: Mapped[date] = mapped_column(Date, nullable=True)
     #**************** Child relationship ***********************
     # "tasks.id" the tasks refers to the tablename of Task
     # "task_trackers" refers to the task_trackers porperty in the Task Class
@@ -91,12 +91,15 @@ def post_new_task():
             description=request.form.get("description"),
             due_date=str_to_date(request.form.get("due date"))
         )
-        # task c
         db.session.add(new_task)
         db.session.commit()
+       
     except:
         # this code block will run if useer provided invalid body
         return jsonify(response={"Bad Request": "make sure you provide all reuqired key, value arguements as star=ted in documentation"}), 400
+    task_tracker = TaskTracker(task_id=new_task.id)
+    db.session.add(task_tracker)
+    db.session.commit()
     return jsonify(response={"Success": "A new task has been added"}), 200
 
 
@@ -138,7 +141,7 @@ def delete_task(_id):
     return jsonify(response={"success": "Successfully deleted the cafe from the database."}), 200
 
 
-# ----------------------------------------- AI End-points -------------------------------------------------------
+#----------------------------------------- AI End-points -------------------------------------------------------
 @app.route("/tasks/suggest", methods=["POST"])
 def get_task_suggestion():
     text = request.form.get("user-input") + "<mask>"
